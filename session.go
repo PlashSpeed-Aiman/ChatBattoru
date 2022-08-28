@@ -1,1 +1,2 @@
-//session logic goes here
+// session logic goes here
+package main

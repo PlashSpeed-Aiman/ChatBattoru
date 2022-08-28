@@ -5,6 +5,15 @@ import (
 	"fmt"
 )
 
+type GameState struct {
+	tic_tac_state []int
+	current_turn  int
+}
+
+func (gs GameState) UpdateGameState(tic_tac_state []int) float64 {
+	panic("UpdateGameState not implemented")
+}
+
 /*
 	0 | 0 | 0
 	---------
