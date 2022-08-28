@@ -31,93 +31,117 @@ import (
 func checkValidInput(input int) bool {
 	//check if input is valid
 	if input < 0 || input > 8 {
-		fmt.Println("Invalid input")
+		fmt.Println("\n\nInvalid input")
 		return false
 	}
 	return true
 }
 
 func modifyBoard(input int, turn int, tic_tac []int) {
-	if turn%2 == 0 {
-		tic_tac[input] = 1
-	} else {
-		tic_tac[input] = 2
-	}
+	tic_tac[input] = (turn % 2) + 1
 }
 
 func showXO(tic_tac []int) {
-	for i := 0; i < len(tic_tac); i++ {
-		if tic_tac[i] == 1 {
-			fmt.Print("X")
-		} else if tic_tac[i] == 2 {
-			fmt.Print("O")
-		} else {
-			fmt.Print("~")
+	var char_map = map[int]string{
+		0: " ~ ",
+		1: " X ",
+		2: " O ",
+	}
+	var spaces int = 6
+	var space_flag = true
+	printSpacesOffset := func(spaces int) {
+		for i := 0; i < spaces; i++ {
+			fmt.Print(" ")
 		}
+	}
+	fmt.Print("//////////BOARD//////////\n\n")
+	for i := 0; i < len(tic_tac); i++ {
+		if space_flag {
+			printSpacesOffset(spaces)
+			space_flag = false
+		}
+		fmt.Print(char_map[tic_tac[i]])
 		if (i+1)%3 != 0 {
 			fmt.Print("|")
 		} else {
 			fmt.Print("\n")
-			fmt.Print("---------\n")
+			printSpacesOffset(spaces)
+			fmt.Print("-----------\n")
+			space_flag = true
 		}
 	}
+	fmt.Print("\n//////////BOARD//////////\n")
 }
 
 func checkPlayerTurn(turn int, tic_tac []int) {
-	var input int = 0
-	loopTillCorrect := func(turn int, input int) {
-		for !checkValidInput(input) {
-			fmt.Println("Please enter a valid input (0-8), Player ", turn, "...")
-			fmt.Scanln(&input)
-		}
+	var input int = -1
+	getInput := func(input int) int {
+		fmt.Scanln(&input)
+		return input - 1
 	}
-	fmt.Println("Player ", (turn%2)+1, "'s turn")
-	fmt.Scanln(&input)
-	loopTillCorrect((turn%2)+1, input)
+	loopTillCorrect := func(turn int, input int) int {
+		for !checkValidInput(input) {
+			fmt.Println("Please enter a valid input (1-9), Player ", turn, "...")
+			fmt.Print("Enter your input: ")
+			input = getInput(input)
+		}
+		return input
+	}
+	fmt.Println("\n\nPlayer ", (turn%2)+1, "'s turn")
+	fmt.Print("Enter your input (1-9): ")
+	input = getInput(input)
+	input = loopTillCorrect((turn%2)+1, input)
+	fmt.Print("\n\n\n")
 	modifyBoard(input, turn, tic_tac)
 }
 
 // How to check if a player has won with an efficient algorithm
 func checkPlayerWin(tic_tac []int) bool {
+	var win bool = false
+	var char_match int = 0
 	//check rows
 	for i := 0; i < len(tic_tac); i += 3 {
 		if tic_tac[i] == tic_tac[i+1] && tic_tac[i] == tic_tac[i+2] {
-			return true
+			char_match = tic_tac[i]
+			break
 		}
 	}
 	//check columns
-	for i := 0; i < len(tic_tac); i++ {
+	for i := 0; i < 3; i++ {
 		if tic_tac[i] == tic_tac[i+3] && tic_tac[i] == tic_tac[i+6] {
-			return true
+			char_match = tic_tac[i]
+			break
 		}
 	}
 	//check diagonals
 	if tic_tac[0] == tic_tac[4] && tic_tac[0] == tic_tac[8] {
-		return true
+		char_match = tic_tac[0]
 	}
 	if tic_tac[2] == tic_tac[4] && tic_tac[2] == tic_tac[6] {
-		return true
+		char_match = tic_tac[2]
 	}
-	return false
+	if char_match != 0 {
+		win = true
+	}
+	return win
 }
 
 func main() {
-	//initialize board
 	fmt.Println("Hello world")
 
 	//for battoru
 	// var p1_board [49]byte
 	// var p2_board [49]byte
 	var tic_tac []int = []int{0, 0, 0, 0, 0, 0, 0, 0, 0}
-	var turn int = 0
+	var turn int = -1
 	fmt.Println("Welcome to Tic Tac Toe")
-	fmt.Println("Initial board should be like this...")
+	fmt.Print("Initial board should be like this...\n\n")
 	showXO(tic_tac)
-	fmt.Println("Now let's play!")
-	for checkPlayerWin(tic_tac) { //will loop if false
+	fmt.Print("\nNow let's play!\n")
+	for !checkPlayerWin(tic_tac) {
+		turn++
 		checkPlayerTurn(turn, tic_tac)
 		showXO(tic_tac)
-		turn++
 	}
-
+	fmt.Println("\n\nPlayer ", (turn%2)+1, " wins!")
 }
